@@ -24,8 +24,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
-app.use(fileUpload());
+// 2097152 bytes = 2mb
+app.use(fileUpload({
+    limits: {
+        fileSize: 2097152
+    },
+}));
 /* Server index config. Sirve para ver las img de la carpeta uploads.
    Bueno para debuggear, pero malo para cuando se tenga ya en produccion.*/
 // const serveIndex = require('serve-index');

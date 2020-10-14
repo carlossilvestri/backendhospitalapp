@@ -24,13 +24,24 @@ exports.uploadImg = async (req, res, next) => {
             }
         });
     }
-
+    // Si no hay foto
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).json({
             ok: false,
             mensaje: 'No files were uploaded.',
             errors: {
                 message: 'No files were uploaded.'
+            }
+        });
+    }
+    // Si el archivo pesa mas de 2mb entonces.
+    if (req.files.imagen.truncated) {
+        // 400 Error
+        return res.status(400).json({
+            ok: false,
+            mensaje: 'Archivo muy pesado.',
+            errors: {
+                message: 'El archivo debe ser menor a 2mb'
             }
         });
     }
