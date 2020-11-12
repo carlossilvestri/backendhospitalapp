@@ -49,7 +49,7 @@ exports.registrarHospital = async (req, res) => {
     }
 }
 // ==========================================
-// Obtiene todos los Hospitales: GET /hospital 
+// Obtiene todos los Hospitales: GET /hospital (No hace falta el token) 
 // ==========================================
 exports.mostrarHospitales = async (req, res, next) => {
     var desde = req.query.desde || 0;
@@ -58,7 +58,7 @@ exports.mostrarHospitales = async (req, res, next) => {
     Hospitales.find({})
         .populate('usuarioId', 'nombre email')
         .skip(desde)
-        .limit(5) // Envia/Muestra  5 registros
+        .limit(10) // Envia/Muestra  10 registros
         .exec(
             (err, hospitales) => {
                 if (err) {
@@ -85,7 +85,44 @@ exports.mostrarHospitales = async (req, res, next) => {
             }
         );
 }
-
+// ==========================================
+// Obtiene un Hospital por su id: GET /hospital/:id (No hace falta el token) 
+// ==========================================
+exports.mostrarHospitalPorId = async (req, res, next) => {
+    const id = req.params.id;
+    if (!id){
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'Debe proporcionar un id',
+            errors: err
+        });
+    }
+    // Encontra el hospital
+    await Hospitales.findById(id)
+        .populate('usuarioId', 'nombre img email')
+        .exec(
+            (err, hospital) => {
+                if (!hospital){
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: `El hospital con el id ${id} no existe`,
+                        errors: { message: `No existe un hospital con el id ${id}`}
+                    });
+                }
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error cargando el hospital',
+                        errors: err
+                    });
+                }
+                res.status(200).json({
+                    ok: true,
+                    hospital
+                });
+            }
+        );
+}
 // ==========================================
 // Actualizar hospital. PUT /hospital/:id Params: id, token. Body: nombre, img.
 // ==========================================
@@ -103,7 +140,7 @@ exports.actualizarHospital = async (req, res) => {
         });
     } else {
         // Hay datos. Buscar el hospital a actualizar.
-        Hospitales.findById(id, (err, hospital) => {
+        await Hospitales.findById(id, (err, hospital) => {
             // Si no se consiguio al hospital entonces:
             if (!hospital) {
                 // 400 Bad request
@@ -143,7 +180,7 @@ exports.actualizarHospital = async (req, res) => {
 
                 res.status(200).json({
                     ok: true,
-                    usuario: hospitalGuardado
+                    hospital: hospitalGuardado
                 });
 
             });

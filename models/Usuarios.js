@@ -33,6 +33,10 @@ const usuariosSchema = new Schema({
         required: true,
         default: 'USER_ROLE',
         enum: rolesValidaos
+    },
+    google: {
+        type: Boolean,
+        default: false
     }
 });
 usuariosSchema.plugin(uniqueValidator, {

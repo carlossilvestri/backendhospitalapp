@@ -122,7 +122,7 @@ function buscarUsuarios(desdeU, regex) {
         desdeU = 0;
     }
     return new Promise((resolve, reject) => {
-        Usuarios.find({}, 'nombre email role')
+        Usuarios.find({}, 'nombre img email role google')
             .or([{
                 'nombre': regex
             }, {

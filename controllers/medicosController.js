@@ -61,7 +61,7 @@ exports.mostrarMedicos = async (req, res, next) => {
         .populate('usuarioId', 'nombre email')
         .populate('hospitalId')
         .skip(desde)
-        .limit(5) // Envia/Muestra  5 registros
+        .limit(10) // Envia/Muestra  10 registros
         .exec(
             (err, medicos) => {
                 if (err) {
@@ -84,6 +84,45 @@ exports.mostrarMedicos = async (req, res, next) => {
                         total: conteo,
                         medicos
                     });
+                });
+            }
+        );
+}
+// ==========================================
+// Obtiene un Medico en especifico: GET /medico/:id 
+// ==========================================
+exports.mostrarMedicoPorId = async (req, res, next) => {
+    const id = req.params.id;
+    if (!id){
+        return res.status(500).json({
+            ok: false,
+            mensaje: 'Debe proporcionar un id',
+            errors: err
+        });
+    }
+    // Encontra el medico
+    await Medicos.findById(id)
+        .populate('usuarioId', 'nombre img email')
+        .populate('hospitalId')
+        .exec(
+            (err, medico) => {
+                if (!medico){
+                    return res.status(400).json({
+                        ok: false,
+                        mensaje: `El medico con el id ${id} no existe`,
+                        errors: { message: `No existe un medico con el id ${id}`}
+                    });
+                }
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        mensaje: 'Error cargando el medico',
+                        errors: err
+                    });
+                }
+                res.status(200).json({
+                    ok: true,
+                    medico
                 });
             }
         );

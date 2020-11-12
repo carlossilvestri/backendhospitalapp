@@ -36,24 +36,14 @@ app.use(fileUpload({
 // app.use(express.static(__dirname + '/'));
 // app.use('/uploads', serveIndex(__dirname + '/uploads'));
 
-//Definir un dominio(s) para recibir peticiones.
-const whiteList = [process.env.FRONTEND_URL];
-const corsOption = {
-    origin: (origin, callback) => {
-        //Revisar si la peticion viene de un servidor que esta en whitelist
-        const existe = whiteList.some(dominio => dominio === origin);
-        if (existe) {
-            callback(null, true);
-        } else {
-            callback(new Error("No permitido por CORS."));
-        }
-    }
-}
-//Carpeta publica
-app.use(express.static('uploads'));
+// CORS
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+    next();
+});
 
-//Habilitar cors
-//app.use(cors(corsOption));
 
 //Rutas de la app.
 app.use('/', routes());

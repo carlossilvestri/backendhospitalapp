@@ -46,18 +46,18 @@ exports.registrarUsuario = async (req, res) => {
     }
 }
 // ==========================================
-// Actualizar usuario
+// Actualizar usuario. usuario/:id?token=
 // ==========================================
 exports.actualizarUsuario = async (req, res) => {
 
     var id = req.params.id;
     var body = req.body;
-    // Verificar que se envie los campos obligatorios (nombre, email, password)
-    if (!body.nombre || !body.email || !body.password) {
+    // Verificar que se envie los campos obligatorios (nombre, email)
+    if (!body.nombre || !body.email ) {
         // Accion prohibida. (Error)
         return res.status(403).json({
             ok: false,
-            mensaje: 'Faltan campos obligatorios. Revisar el nombre, email y password.'
+            mensaje: 'Faltan campos obligatorios. Revisar el nombre, email.'
         });
     } else {
         // Hay datos. Buscar el usuario a actualizar.
@@ -116,9 +116,9 @@ exports.mostrarUsuarios = async (req, res, next) => {
     var desde = req.query.desde || 0;
     desde = Number(desde);
     // Encontra todos los usuarios. 
-    Usuarios.find({}, 'nombre email img role') // valores que me interesa obtener.
+    Usuarios.find({}, 'nombre email img role google') // valores que me interesa obtener.
         .skip(desde)
-        .limit(5) // Envia/Muestra  5 registros
+        .limit(10) // Envia/Muestra  10 registros
         .exec(
             (err, usuarios) => {
                 if (err) {
@@ -243,8 +243,41 @@ exports.login = async (req, res, next) => {
                 ok: true,
                 usuario: usuarioBD,
                 token,
-                id: usuarioBD._id
+                id: usuarioBD._id,
+                menu: obtenerMenu(usuarioBD.role)
             });
         });
     }
+}
+// Regresar un objeto con el menu que se utilizara en el frontend.
+/*
+Params: role (string) ADMIN_ROLE 
+*/
+function obtenerMenu(role){
+    let menu= [
+        {
+          titulo: 'Principal',
+          icono: 'md mdi-gauge',
+          submenu: [
+            { titulo: 'Dashboard', url: '/dashboard'},
+            { titulo: 'ProgressBar', url: '/progress'},
+            { titulo: 'Gráficas', url: '/graficas1'},
+            { titulo: 'Promesas', url: '/promesas'},
+            { titulo: 'RxJs', url: '/rxjs'},
+          ]
+        },
+        {
+          titulo: 'Mantenimiento',
+          icono: 'md mdi-folder-lock-open',
+          submenu: [
+            // { titulo: 'Usuarios', url: '/usuarios'},
+            { titulo: 'Hospitales', url: '/hospitales'},
+            { titulo: 'Médicos', url: '/medicos'}
+          ]
+        }
+      ];
+      if (role === 'ADMIN_ROLE'){
+          menu[1].submenu.unshift({ titulo: 'Usuarios', url: '/usuarios'});
+      }
+    return menu;
 }
